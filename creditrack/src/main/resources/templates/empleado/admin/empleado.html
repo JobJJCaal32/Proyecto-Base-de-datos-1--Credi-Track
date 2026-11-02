@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina(${empleado.nombre}, ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta" th:text="|Empleado ${empleado.codigo}|">Empleado</p>
+        <h1 th:text="${empleado.nombre}">Nombre</h1>
+        <p class="nota">
+            <span class="insignia" th:classappend="${empleado.estado == 'ACTIVO'} ? 'ok' : 'apagada'" th:text="${empleado.estado}"></span>
+            <span th:text="|Usuario ${empleado.username} · ingresó el ${@fechas.fecha(empleado.fechaIngreso)}|"></span>
+        </p>
+    </header>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <section class="panel formulario" th:if="${empleado.estado == 'ACTIVO'}">
+        <h2>Puesto, sucursal y rol</h2>
+        <form th:action="@{/empleado/admin/empleados/{c}(c=${empleado.codigo})}" method="post">
+            <label>Puesto
+                <input type="text" name="puesto" th:value="${empleado.puesto}" maxlength="50" required>
+            </label>
+            <label>Sucursal
+                <select name="idSucursal" required>
+                    <option th:each="s : ${sucursales}" th:value="${s.idSucursal}" th:text="${s.nombre}" th:selected="${s.idSucursal == empleado.idSucursal}"></option>
+                </select>
+            </label>
+            <label>Rol
+                <select name="idRol" required>
+                    <option th:each="r : ${roles}" th:value="${r.idRol}" th:text="${r.nombre}" th:selected="${r.idRol == empleado.idRol}"></option>
+                </select>
+            </label>
+            <div class="acciones">
+                <button type="submit" class="boton">Guardar cambios</button>
+                <a class="boton secundario" th:href="@{/empleado/admin/empleados}">Volver</a>
+            </div>
+        </form>
+    </section>
+    <section class="panel formulario" th:if="${empleado.estado == 'ACTIVO'}">
+        <h2>Dar de baja</h2>
+        <p class="nota">El empleado queda inactivo y su usuario ya no puede ingresar. Sus registros se conservan.</p>
+        <form th:action="@{/empleado/admin/empleados/{c}/baja(c=${empleado.codigo})}" method="post">
+            <button type="submit" class="boton secundario">Dar de baja</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Estado de cuentas', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Clientes</p>
+        <h1>Estado de cuentas</h1>
+        <p class="nota">Bloquear, desbloquear, inactivar o cerrar una cuenta. Solo se cierra una cuenta con saldo cero y una cuenta cerrada no se reabre.</p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="panel formulario">
+        <form th:action="@{/empleado/cuentas/estado}" method="get">
+            <label>Número de cuenta
+                <input type="text" name="numero" th:value="${numero}" inputmode="numeric" maxlength="20" placeholder="1000000001" required>
+            </label>
+            <button type="submit" class="boton secundario">Buscar cuenta</button>
+        </form>
+    </section>
+
+    <section class="panel formulario" th:if="${ficha}">
+        <h2 th:text="|Cuenta ${ficha.cuenta.numeroCuenta}|">Cuenta</h2>
+        <dl class="datos">
+            <dt>Titular</dt>
+            <dd><a th:href="@{/empleado/clientes/{c}(c=${ficha.codigoCliente})}" th:text="|${ficha.titular} (${ficha.codigoCliente})|"></a></dd>
+            <dt>Tipo</dt>
+            <dd th:text="${ficha.tipo}"></dd>
+            <dt>Saldo</dt>
+            <dd th:text="${@formato.moneda(ficha.cuenta.saldoActual)}"></dd>
+            <dt>Estado actual</dt>
+            <dd><span class="insignia" th:classappend="${ficha.estado.permiteOperar} ? 'ok' : 'apagada'" th:text="${ficha.estado.nombre}"></span></dd>
+            <dt th:if="${ficha.cuenta.fechaCierre}">Cerrada el</dt>
+            <dd th:if="${ficha.cuenta.fechaCierre}" th:text="${@fechas.fecha(ficha.cuenta.fechaCierre)}"></dd>
+        </dl>
+        <form th:if="${ficha.estado.nombre != 'CERRADA'}" th:action="@{/empleado/cuentas/estado}" method="post">
+            <input type="hidden" name="numero" th:value="${ficha.cuenta.numeroCuenta}">
+            <label>Nuevo estado
+                <select name="estado" required>
+                    <option value="">Seleccione</option>
+                    <option th:each="e : ${estados}" th:unless="${e.idEstadoCuenta == ficha.estado.idEstadoCuenta}"
+                            th:value="${e.idEstadoCuenta}" th:text="|${e.nombre} · ${e.descripcion}|"></option>
+                </select>
+            </label>
+            <button type="submit" class="boton">Cambiar estado</button>
+        </form>
+        <p class="nota" th:if="${ficha.estado.nombre == 'CERRADA'}">La cuenta está cerrada; ya no se puede cambiar su estado.</p>
+    </section>
+</main>
+</body>
+</html>

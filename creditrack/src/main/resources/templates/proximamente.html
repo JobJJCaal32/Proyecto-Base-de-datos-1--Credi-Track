@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina(${opcion.etiqueta}, ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Próximamente</p>
+        <h1 th:text="${opcion.etiqueta}">Opción</h1>
+        <p class="nota" th:text="${opcion.descripcion}">Descripción</p>
+    </header>
+    <section class="panel">
+        <p>Esta opción ya está reservada para su rol, pero su pantalla todavía está en desarrollo.</p>
+        <a class="boton secundario" th:href="@{${inicio}}">Volver al inicio</a>
+    </section>
+</main>
+</body>
+</html>

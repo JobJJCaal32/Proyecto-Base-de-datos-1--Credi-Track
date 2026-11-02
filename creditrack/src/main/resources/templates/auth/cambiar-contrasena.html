@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Cambiar contraseña', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Seguridad</p>
+        <h1>Cambiar contraseña</h1>
+        <p class="nota" th:if="${obligatorio}">Por seguridad debe cambiar su contraseña temporal antes de continuar.</p>
+        <p class="nota" th:unless="${obligatorio}">Ingrese su contraseña actual y la nueva.</p>
+    </header>
+
+    <section class="panel formulario">
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <form th:action="@{/cambiar-contrasena}" method="post" autocomplete="off">
+            <label>Contraseña actual
+                <input type="password" name="actual" maxlength="64" required autofocus>
+            </label>
+            <label>Nueva contraseña
+                <input type="password" name="nueva" maxlength="64" required>
+            </label>
+            <label>Confirmar nueva contraseña
+                <input type="password" name="confirmacion" maxlength="64" required>
+            </label>
+            <p class="nota" th:text="${politica}"></p>
+            <button type="submit" class="boton">Guardar contraseña</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

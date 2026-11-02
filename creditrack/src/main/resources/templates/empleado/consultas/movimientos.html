@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Movimientos', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Consultas</p>
+        <h1>Movimientos</h1>
+        <p class="nota">Por mes, tipo, cliente o cuenta. Cada consulta queda registrada en la bitácora de consultas.</p>
+    </header>
+
+    <form class="panel filtros" th:action="@{/empleado/consultas/movimientos}" method="get">
+        <label>Código de cliente
+            <input type="text" name="cliente" th:value="${cliente}" maxlength="10" placeholder="CLI-000001">
+        </label>
+        <label>Número de cuenta
+            <input type="text" name="cuenta" th:value="${cuenta}" maxlength="20">
+        </label>
+        <label>Mes
+            <select name="mes">
+                <option th:each="m : ${meses}" th:value="${m.valor}" th:selected="${m.valor == mes}" th:text="${m.etiqueta}"></option>
+            </select>
+        </label>
+        <label>Tipo
+            <select name="tipo">
+                <option value="">Todos</option>
+                <option value="DEPOSITO" th:selected="${tipo == 'DEPOSITO'}">Depósitos</option>
+                <option value="RETIRO" th:selected="${tipo == 'RETIRO'}">Retiros</option>
+                <option value="TRANSFERENCIA" th:selected="${tipo == 'TRANSFERENCIA'}">Transferencias</option>
+            </select>
+        </label>
+        <button type="submit" class="boton">Filtrar</button>
+    </form>
+
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="panel">
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(movimientos)}">
+            <table class="tabla">
+                <thead><tr><th>Fecha</th><th>Transacción</th><th>Cuenta y titular</th><th>Canal</th><th class="numero">Monto</th><th class="numero">Saldo</th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${movimientos}">
+                    <td th:text="${@fechas.fechaHora(m.fechaHora)}"></td>
+                    <td>
+                        <a th:href="@{/empleado/consultas/comprobantes/{n}(n=${m.numeroTransaccion})}" th:text="${m.numeroTransaccion}"></a>
+                        <small class="nota" th:text="|${m.tipoOperacion} · ${m.realizadoPor}|"></small>
+                    </td>
+                    <td>
+                        <span th:text="${m.numeroCuenta}"></span>
+                        <small class="nota" th:text="|${m.titular} (${m.codigoCliente})|"></small>
+                    </td>
+                    <td th:text="${m.canal}"></td>
+                    <td class="numero" th:classappend="${m.esCargo()} ? 'monto-cargo' : 'monto-abono'"
+                        th:text="${(m.esCargo() ? '- ' : '+ ') + @formato.moneda(m.monto)}"></td>
+                    <td class="numero" th:text="${@formato.moneda(m.saldoPosterior)}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(movimientos)}">No hay movimientos con esos filtros.</p>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina(${detalle.nombreCompleto}, ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta" th:text="|Cliente ${detalle.cliente.codigoCliente}|">Cliente</p>
+        <h1 th:text="${detalle.nombreCompleto}">Nombre</h1>
+        <p class="nota">
+            <span class="insignia" th:classappend="${detalle.cliente.estado.name() == 'ACTIVO'} ? 'ok' : 'apagada'" th:text="${detalle.cliente.estado}"></span>
+            <span th:text="|Cliente desde ${@fechas.fecha(detalle.cliente.fechaAlta)}|"></span>
+        </p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="panel">
+        <div class="panel-encabezado">
+            <h2>Cuentas</h2>
+            <a class="boton boton-chico" th:if="${usuarioActual.tienePermiso('ABRIR_CUENTA')}"
+               th:href="@{/empleado/cuentas/nueva(cliente=${detalle.cliente.codigoCliente})}">Abrir otra cuenta</a>
+        </div>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(detalle.cuentas)}">
+            <table class="tabla">
+                <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th class="numero">Saldo</th>
+                    <th class="numero">Disponible</th>
+                    <th>Apertura</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${detalle.cuentas}">
+                    <td>
+                        <strong th:text="${c.numeroCuenta}"></strong>
+                        <small class="nota" th:if="${c.alias}" th:text="${c.alias}"></small>
+                    </td>
+                    <td th:text="${c.tipoCuenta}"></td>
+                    <td><span class="insignia" th:classappend="${c.permiteOperar} ? 'ok' : 'apagada'" th:text="${c.estadoCuenta}"></span></td>
+                    <td class="numero" th:text="${@formato.moneda(c.saldoActual)}"></td>
+                    <td class="numero" th:text="${@formato.moneda(c.saldoDisponible)}"></td>
+                    <td th:text="${@fechas.fecha(c.fechaApertura)}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(detalle.cuentas)}">El cliente no tiene cuentas.</p>
+    </section>
+
+    <div class="columnas">
+        <section class="panel">
+            <h2>Datos personales</h2>
+            <dl class="datos">
+                <dt>DPI</dt>
+                <dd th:text="${@formato.dpiOculto(detalle.identidad.dpi)}"></dd>
+                <dt>NIT</dt>
+                <dd th:text="${detalle.identidad.nit ?: 'No registrado'}"></dd>
+                <dt>Nacimiento</dt>
+                <dd th:text="${@fechas.fecha(detalle.identidad.fechaNacimiento)}"></dd>
+                <dt>Género</dt>
+                <dd th:text="${detalle.genero}"></dd>
+                <dt>Teléfono</dt>
+                <dd th:text="${detalle.identidad.telefono ?: 'No registrado'}"></dd>
+                <dt>Dirección</dt>
+                <dd th:text="${detalle.direccion}"></dd>
+                <dt>Municipio</dt>
+                <dd th:text="|${detalle.municipio}, ${detalle.departamento}|"></dd>
+            </dl>
+        </section>
+
+        <section class="panel">
+            <h2>Banca virtual</h2>
+            <dl class="datos" th:if="${detalle.usuario}">
+                <dt>Usuario</dt>
+                <dd th:text="${detalle.usuario.username}"></dd>
+                <dt>Correo</dt>
+                <dd th:text="${detalle.usuario.correo}"></dd>
+                <dt>Estado</dt>
+                <dd><span class="insignia" th:classappend="${detalle.usuario.estado.name() == 'ACTIVO'} ? 'ok' : 'alerta'" th:text="${detalle.usuario.estado}"></span></dd>
+                <dt>Contraseña</dt>
+                <dd th:text="${detalle.usuario.requiereCambioContrasena} ? 'Temporal, pendiente de cambio' : 'Cambiada por el cliente'"></dd>
+            </dl>
+            <p th:unless="${detalle.usuario}">El cliente no tiene usuario de banca virtual.</p>
+        </section>
+    </div>
+
+    <div class="acciones">
+        <a class="boton secundario" th:href="@{/empleado/clientes}">Buscar otro cliente</a>
+        <a class="boton secundario" th:if="${detalle.cliente.estado.name() == 'ACTIVO' and usuarioActual.tienePermiso('ACTUALIZAR_CLIENTE')}"
+           th:href="@{/empleado/clientes/{c}/editar(c=${detalle.cliente.codigoCliente})}">Actualizar datos</a>
+        <form th:if="${detalle.cliente.estado.name() == 'ACTIVO' and usuarioActual.tienePermiso('DAR_BAJA_CLIENTE')}"
+              th:action="@{/empleado/clientes/{c}/baja(c=${detalle.cliente.codigoCliente})}" method="post">
+            <button type="submit" class="boton secundario">Dar de baja</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

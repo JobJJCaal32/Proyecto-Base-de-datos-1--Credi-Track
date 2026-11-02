@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: pagina(${tipo == 'deposito'} ? 'Depósito' : (${tipo == 'retiro'} ? 'Retiro' : 'Transferencia en ventanilla'), ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Caja</p>
+        <h1 th:text="${tipo == 'deposito'} ? 'Depósito en efectivo' : (${tipo == 'retiro'} ? 'Retiro en efectivo' : 'Transferencia en ventanilla')">Operación</h1>
+        <p class="nota" th:if="${tipo == 'retiro'}" th:text="|Los retiros mayores a ${@formato.moneda(limite)} quedan pendientes hasta que los autorice el supervisor.|"></p>
+    </header>
+
+    <section class="panel formulario">
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <div th:unless="${cajaAbierta}">
+            <p>Primero abra su caja.</p>
+            <a class="boton" th:href="@{/empleado/caja}">Ir a mi caja</a>
+        </div>
+        <form th:if="${cajaAbierta}" th:action="@{/empleado/caja/{t}(t=${tipo})}" method="post" autocomplete="off">
+            <input type="hidden" name="referencia" th:value="${referencia}">
+            <label><span th:text="${tipo == 'transferencia'} ? 'Cuenta origen' : 'Número de cuenta'">Cuenta</span>
+                <input type="text" name="cuenta" th:value="${cuenta}" inputmode="numeric" maxlength="20" required autofocus>
+            </label>
+            <label th:if="${tipo == 'transferencia'}">Cuenta destino
+                <input type="text" name="destino" th:value="${destino}" inputmode="numeric" maxlength="20" required>
+            </label>
+            <label>Monto (Q)
+                <input type="number" name="monto" th:value="${monto}" min="0.01" step="0.01" required>
+            </label>
+            <label><span>Concepto <span class="opcional">(opcional)</span></span>
+                <input type="text" name="concepto" th:value="${concepto}" maxlength="200">
+            </label>
+            <label class="casilla" th:if="${tipo != 'deposito'}">
+                <input type="checkbox" name="identidadVerificada" value="true" required>
+                <span>Verifiqué el DPI del titular de la cuenta</span>
+            </label>
+            <div class="acciones">
+                <button type="submit" class="boton" th:text="${tipo == 'deposito'} ? 'Registrar depósito' : (${tipo == 'retiro'} ? 'Registrar retiro' : 'Registrar transferencia')">Registrar</button>
+                <a class="boton secundario" th:href="@{/empleado/caja}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

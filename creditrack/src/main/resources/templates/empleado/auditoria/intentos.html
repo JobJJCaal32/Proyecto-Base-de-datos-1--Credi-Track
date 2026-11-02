@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Intentos de acceso', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Auditoría</p>
+        <h1>Intentos de acceso fallidos</h1>
+    </header>
+
+    <form class="panel filtros" th:action="@{/empleado/auditoria/intentos}" method="get">
+        <label>Usuario intentado
+            <input type="text" name="usuario" th:value="${usuario}" maxlength="30">
+        </label>
+        <label>Dirección IP
+            <input type="text" name="ip" th:value="${ip}" maxlength="45">
+        </label>
+        <label>Desde
+            <input type="date" name="desde" th:value="${desde}">
+        </label>
+        <label>Hasta
+            <input type="date" name="hasta" th:value="${hasta}">
+        </label>
+        <button type="submit" class="boton">Filtrar</button>
+    </form>
+
+    <div class="columnas">
+        <section class="panel">
+            <h2>Por usuario</h2>
+            <table class="tabla">
+                <thead><tr><th>Usuario</th><th class="numero">Fallos</th></tr></thead>
+                <tbody>
+                <tr th:each="f : ${porUsuario}">
+                    <td><a th:href="@{/empleado/auditoria/intentos(usuario=${f.clave})}" th:text="${f.clave}"></a></td>
+                    <td class="numero" th:text="${f.cantidad}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+        <section class="panel">
+            <h2>Por dirección IP</h2>
+            <table class="tabla">
+                <thead><tr><th>IP</th><th class="numero">Fallos</th></tr></thead>
+                <tbody>
+                <tr th:each="f : ${porIp}">
+                    <td><a th:href="@{/empleado/auditoria/intentos(ip=${f.clave})}" th:text="${f.clave ?: '-'}"></a></td>
+                    <td class="numero" th:text="${f.cantidad}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <section class="panel">
+        <h2>Detalle</h2>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(pagina.filas)}">
+            <table class="tabla">
+                <thead><tr><th>Fecha</th><th>Usuario</th><th>Motivo</th><th>Estado actual</th><th>IP</th></tr></thead>
+                <tbody>
+                <tr th:each="i : ${pagina.filas}">
+                    <td th:text="${@fechas.fechaHora(i.fechaHora)}"></td>
+                    <td>
+                        <strong th:text="${i.username}"></strong>
+                        <small class="nota" th:unless="${i.existe}">No existe</small>
+                    </td>
+                    <td th:text="${i.motivo}"></td>
+                    <td><span class="insignia" th:if="${i.estadoActual}" th:classappend="${i.estadoActual == 'ACTIVO'} ? 'ok' : 'alerta'" th:text="${i.estadoActual}"></span></td>
+                    <td th:text="${i.direccionIp ?: '-'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(pagina.filas)}">No hay intentos fallidos con esos filtros.</p>
+        <div class="paginacion">
+            <a class="boton boton-chico secundario" th:if="${pagina.numero > 1}"
+               th:href="@{/empleado/auditoria/intentos(usuario=${usuario},ip=${ip},desde=${desde},hasta=${hasta},pagina=${pagina.numero - 1})}">Anterior</a>
+            <span class="nota" th:text="|Página ${pagina.numero}|"></span>
+            <a class="boton boton-chico secundario" th:if="${pagina.haySiguiente}"
+               th:href="@{/empleado/auditoria/intentos(usuario=${usuario},ip=${ip},desde=${desde},hasta=${hasta},pagina=${pagina.numero + 1})}">Siguiente</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

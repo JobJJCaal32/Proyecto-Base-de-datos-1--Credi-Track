@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Cuenta abierta', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Cuenta abierta</p>
+        <h1 th:text="${resultado.numeroCuenta}">Número</h1>
+        <p class="nota" th:text="|${resultado.titular} · ${resultado.codigoCliente}|">Titular</p>
+    </header>
+
+    <div class="mensaje aviso">La cuenta quedó abierta con su depósito de apertura.</div>
+
+    <section class="panel">
+        <dl class="datos">
+            <dt>Tipo</dt>
+            <dd th:text="${resultado.tipoCuenta}"></dd>
+            <dt>Depósito de apertura</dt>
+            <dd th:text="${@formato.moneda(resultado.monto)}"></dd>
+            <dt>Transacción</dt>
+            <dd th:text="${resultado.numeroTransaccion}"></dd>
+            <dt>Fecha</dt>
+            <dd th:text="${@fechas.fechaHora(resultado.fechaHora)}"></dd>
+        </dl>
+    </section>
+
+    <div class="acciones no-imprimir">
+        <button type="button" class="boton secundario" onclick="window.print()">Imprimir comprobante</button>
+        <a class="boton" th:href="@{/empleado/clientes/{c}(c=${resultado.codigoCliente})}">Ver ficha del cliente</a>
+    </div>
+</main>
+</body>
+</html>

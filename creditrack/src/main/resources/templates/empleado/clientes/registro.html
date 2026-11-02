@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Registrar cliente', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Clientes</p>
+        <h1>Registrar cliente</h1>
+        <p class="nota">Se registran en un solo paso los datos de la persona, su primera cuenta con el depósito de apertura y su usuario de banca virtual. Si algo falla, no se guarda nada.</p>
+    </header>
+
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="formulario-ancho" th:action="@{/empleado/clientes/nuevo}" th:object="${registro}" method="post" novalidate>
+        <section class="panel bloque">
+            <h2>1. Datos personales</h2>
+            <div class="campos">
+                <label>Primer nombre
+                    <input type="text" th:field="*{primerNombre}" maxlength="50" required th:classappend="${#fields.hasErrors('primerNombre')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('primerNombre')}" th:errors="*{primerNombre}"></small>
+                </label>
+                <label><span>Segundo nombre <span class="opcional">(opcional)</span></span>
+                    <input type="text" th:field="*{segundoNombre}" maxlength="50" th:classappend="${#fields.hasErrors('segundoNombre')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('segundoNombre')}" th:errors="*{segundoNombre}"></small>
+                </label>
+                <label><span>Tercer nombre <span class="opcional">(opcional)</span></span>
+                    <input type="text" th:field="*{tercerNombre}" maxlength="50" th:classappend="${#fields.hasErrors('tercerNombre')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('tercerNombre')}" th:errors="*{tercerNombre}"></small>
+                </label>
+                <label>Primer apellido
+                    <input type="text" th:field="*{primerApellido}" maxlength="50" required th:classappend="${#fields.hasErrors('primerApellido')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('primerApellido')}" th:errors="*{primerApellido}"></small>
+                </label>
+                <label><span>Segundo apellido <span class="opcional">(opcional)</span></span>
+                    <input type="text" th:field="*{segundoApellido}" maxlength="50" th:classappend="${#fields.hasErrors('segundoApellido')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('segundoApellido')}" th:errors="*{segundoApellido}"></small>
+                </label>
+                <label>DPI
+                    <input type="text" th:field="*{dpi}" inputmode="numeric" maxlength="15" placeholder="13 dígitos" required th:classappend="${#fields.hasErrors('dpi')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('dpi')}" th:errors="*{dpi}"></small>
+                </label>
+                <label><span>NIT <span class="opcional">(opcional)</span></span>
+                    <input type="text" th:field="*{nit}" maxlength="20" placeholder="1234567-8 o CF" th:classappend="${#fields.hasErrors('nit')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('nit')}" th:errors="*{nit}"></small>
+                </label>
+                <label>Fecha de nacimiento
+                    <input type="date" th:field="*{fechaNacimiento}" required th:classappend="${#fields.hasErrors('fechaNacimiento')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('fechaNacimiento')}" th:errors="*{fechaNacimiento}"></small>
+                </label>
+                <label>Género
+                    <select th:field="*{idGenero}" required th:classappend="${#fields.hasErrors('idGenero')} ? 'invalido'">
+                        <option value="">Seleccione</option>
+                        <option th:each="g : ${generos}" th:value="${g.idGenero}" th:text="${g.nombre}"></option>
+                    </select>
+                    <small class="campo-error" th:if="${#fields.hasErrors('idGenero')}" th:errors="*{idGenero}"></small>
+                </label>
+            </div>
+        </section>
+
+        <section class="panel bloque">
+            <h2>2. Contacto y dirección</h2>
+            <div class="campos">
+                <label>Correo electrónico
+                    <input type="email" th:field="*{correo}" maxlength="100" required th:classappend="${#fields.hasErrors('correo')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></small>
+                </label>
+                <label><span>Teléfono <span class="opcional">(opcional)</span></span>
+                    <input type="tel" th:field="*{telefono}" maxlength="9" placeholder="5512-3408" th:classappend="${#fields.hasErrors('telefono')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></small>
+                </label>
+                <label>Municipio
+                    <select th:field="*{idMunicipio}" required th:classappend="${#fields.hasErrors('idMunicipio')} ? 'invalido'">
+                        <option value="">Seleccione</option>
+                        <optgroup th:each="grupo : ${municipios}" th:label="${grupo.departamento}">
+                            <option th:each="m : ${grupo.municipios}" th:value="${m.idMunicipio}" th:text="${m.nombre}"></option>
+                        </optgroup>
+                    </select>
+                    <small class="campo-error" th:if="${#fields.hasErrors('idMunicipio')}" th:errors="*{idMunicipio}"></small>
+                </label>
+                <label class="campo-completo">Dirección
+                    <input type="text" th:field="*{direccion}" maxlength="255" placeholder="Calle, número, zona o barrio" required th:classappend="${#fields.hasErrors('direccion')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></small>
+                </label>
+            </div>
+        </section>
+
+        <section class="panel bloque">
+            <h2>3. Cuenta y depósito de apertura</h2>
+            <div class="campos">
+                <label>Tipo de cuenta
+                    <select th:field="*{idTipoCuenta}" required th:classappend="${#fields.hasErrors('idTipoCuenta')} ? 'invalido'">
+                        <option value="">Seleccione</option>
+                        <option th:each="t : ${tiposCuenta}" th:value="${t.idTipoCuenta}"
+                                th:text="|${t.descripcion} (mínimo ${@formato.moneda(t.montoAperturaMinimo)})|"></option>
+                    </select>
+                    <small class="campo-error" th:if="${#fields.hasErrors('idTipoCuenta')}" th:errors="*{idTipoCuenta}"></small>
+                </label>
+                <label>Depósito de apertura (Q)
+                    <input type="number" th:field="*{montoApertura}" min="0.01" step="0.01" required th:classappend="${#fields.hasErrors('montoApertura')} ? 'invalido'">
+                    <small class="campo-error" th:if="${#fields.hasErrors('montoApertura')}" th:errors="*{montoApertura}"></small>
+                </label>
+            </div>
+            <p class="nota">El usuario de banca virtual y su contraseña temporal se generan al guardar. El cliente deberá cambiarla en su primer ingreso.</p>
+        </section>
+
+        <div class="acciones">
+            <button type="submit" class="boton">Registrar cliente</button>
+            <a class="boton secundario" th:href="@{/empleado}">Cancelar</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

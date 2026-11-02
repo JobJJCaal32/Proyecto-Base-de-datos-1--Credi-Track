@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Alertas', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Supervisión</p>
+        <h1>Alertas</h1>
+        <p class="nota">Operaciones de monto alto o cargos frecuentes detectados automáticamente.</p>
+    </header>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <form class="panel filtros" th:action="@{/empleado/supervision/alertas}" method="get">
+        <label>Estado
+            <select name="estado">
+                <option value="">Abiertas</option>
+                <option value="PENDIENTE" th:selected="${estado == 'PENDIENTE'}">Pendientes</option>
+                <option value="EN_REVISION" th:selected="${estado == 'EN_REVISION'}">En revisión</option>
+                <option value="RESUELTA" th:selected="${estado == 'RESUELTA'}">Resueltas</option>
+                <option value="DESCARTADA" th:selected="${estado == 'DESCARTADA'}">Descartadas</option>
+            </select>
+        </label>
+        <button type="submit" class="boton">Filtrar</button>
+    </form>
+    <section class="panel" th:each="a : ${alertas}">
+        <div class="panel-encabezado">
+            <h2 th:text="${a.tipo}">Tipo</h2>
+            <span class="insignia" th:classappend="${a.nivel == 'ALTO'} ? 'alerta' : ''" th:text="|Riesgo ${a.nivel}|"></span>
+        </div>
+        <p th:text="${a.detalle}"></p>
+        <p class="nota">
+            <span th:text="${@fechas.fechaHora(a.fecha)}"></span> ·
+            <a th:href="@{/empleado/consultas/comprobantes/{n}(n=${a.numeroTransaccion})}" th:text="${a.numeroTransaccion}"></a> ·
+            <span th:text="|cuenta ${a.cuenta}|"></span> ·
+            <span class="insignia" th:text="${a.estado}"></span>
+            <span th:if="${a.revisor}" th:text="|· revisa ${a.revisor}|"></span>
+        </p>
+        <p th:if="${a.resolucion}" th:text="|Resolución: ${a.resolucion}|"></p>
+        <form th:if="${a.estado == 'PENDIENTE' or a.estado == 'EN_REVISION'}" th:action="@{/empleado/supervision/alertas/{id}(id=${a.id})}" method="post" class="formulario">
+            <label><span>Resolución <span class="opcional">(obligatoria para cerrar)</span></span>
+                <input type="text" name="resolucion" maxlength="300">
+            </label>
+            <div class="acciones">
+                <button type="submit" name="estado" value="EN_REVISION" class="boton secundario" th:if="${a.estado == 'PENDIENTE'}">Tomar en revisión</button>
+                <button type="submit" name="estado" value="RESUELTA" class="boton">Resolver</button>
+                <button type="submit" name="estado" value="DESCARTADA" class="boton secundario">Descartar</button>
+            </div>
+        </form>
+    </section>
+    <p class="panel" th:if="${#lists.isEmpty(alertas)}">No hay alertas con ese estado.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Permisos por rol', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Administración</p>
+        <h1>Permisos por rol</h1>
+        <p class="nota">Cada cambio queda en la bitácora. El menú de cada usuario se ajusta en la siguiente página que abra.</p>
+    </header>
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <form class="panel filtros" th:action="@{/empleado/admin/permisos}" method="get">
+        <label>Rol
+            <select name="rol">
+                <option th:each="r : ${roles}" th:value="${r.idRol}" th:text="|${r.nombre} (${r.tipoUsuario})|" th:selected="${r.idRol == rol}"></option>
+            </select>
+        </label>
+        <button type="submit" class="boton secundario">Ver permisos</button>
+    </form>
+    <form class="panel" th:action="@{/empleado/admin/permisos/{r}(r=${rol})}" method="post">
+        <div class="permisos-grilla">
+            <label class="casilla" th:each="p : ${permisos}">
+                <input type="checkbox" name="permiso" th:value="${p.idPermiso}" th:checked="${asignados.contains(p.idPermiso)}">
+                <span><strong th:text="${p.nombre}"></strong><small class="nota" th:text="${p.descripcion}"></small></span>
+            </label>
+        </div>
+        <div class="acciones">
+            <button type="submit" class="boton">Guardar permisos</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

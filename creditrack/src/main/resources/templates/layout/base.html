@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:fragment="pagina(titulo, contenido)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' | CrediTrack'">CrediTrack</title>
+    <link rel="stylesheet" th:href="@{/css/creditrack.css}">
+</head>
+<body class="app">
+<input type="checkbox" id="menu-abierto" class="menu-interruptor">
+<header class="barra">
+    <label for="menu-abierto" class="boton-menu" th:if="${mostrarMenu}" aria-label="Abrir menú">Menú</label>
+    <a class="barra-marca" th:href="@{${inicio}}">CrediTrack</a>
+    <div class="barra-usuario" th:if="${usuarioActual}">
+        <span class="barra-nombre" th:text="${usuarioActual.nombre}">Nombre</span>
+        <span class="barra-rol" th:text="${usuarioActual.rol}">ROL</span>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="boton boton-pequeno">Cerrar sesión</button>
+        </form>
+    </div>
+</header>
+<div class="cuerpo" th:classappend="${mostrarMenu} ? '' : 'sin-menu'">
+    <nav class="menu" th:if="${mostrarMenu}" aria-label="Menú principal">
+        <section class="menu-seccion" th:each="seccion : ${menu}">
+            <p class="menu-titulo" th:text="${seccion.titulo}">Sección</p>
+            <ul>
+                <li th:each="opcion : ${seccion.opciones}">
+                    <a th:href="@{${opcion.ruta}}"
+                       th:classappend="${opcion.ruta == rutaActual} ? 'activa' : ''">
+                        <span th:text="${opcion.etiqueta}">Opción</span>
+                        <small class="pronto" th:unless="${opcion.disponible}">Pronto</small>
+                    </a>
+                </li>
+            </ul>
+        </section>
+    </nav>
+    <main class="contenido" th:replace="${contenido}">
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Autorizaciones', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Supervisión</p>
+        <h1>Autorizaciones pendientes</h1>
+        <p class="nota">Retiros que superan el límite de caja. No puede autorizar operaciones de su propia caja.</p>
+    </header>
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <section class="panel" th:each="p : ${pendientes}">
+        <div class="panel-encabezado">
+            <h2 th:text="|${p.operacion} ${p.numero}|">Operación</h2>
+            <span class="saldo-chico" th:text="${@formato.moneda(p.monto)}"></span>
+        </div>
+        <dl class="datos">
+            <dt>Cuenta</dt>
+            <dd th:text="|${p.cuenta} · ${p.titular}|"></dd>
+            <dt>Cajero</dt>
+            <dd th:text="|${p.cajero} · ${p.sucursal}|"></dd>
+            <dt>Solicitado</dt>
+            <dd th:text="${@fechas.fechaHora(p.fechaHora)}"></dd>
+        </dl>
+        <form th:action="@{/empleado/supervision/autorizaciones/{n}(n=${p.numero})}" method="post" class="formulario">
+            <label><span>Comentario <span class="opcional">(opcional)</span></span>
+                <input type="text" name="comentario" maxlength="300">
+            </label>
+            <div class="acciones">
+                <button type="submit" name="decision" value="APROBAR" class="boton">Aprobar</button>
+                <button type="submit" name="decision" value="RECHAZAR" class="boton secundario">Rechazar</button>
+            </div>
+        </form>
+    </section>
+    <p class="panel" th:if="${#lists.isEmpty(pendientes)}">No hay operaciones pendientes de autorización.</p>
+</main>
+</body>
+</html>

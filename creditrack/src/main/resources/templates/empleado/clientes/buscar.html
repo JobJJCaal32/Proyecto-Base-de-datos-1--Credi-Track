@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Buscar cliente', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Clientes</p>
+        <h1>Buscar cliente</h1>
+        <p class="nota">Cada búsqueda queda registrada en la bitácora de consultas.</p>
+    </header>
+
+    <section class="panel formulario">
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <div class="mensaje info" th:if="${aviso}" th:text="${aviso}"></div>
+        <form th:action="@{/empleado/clientes}" method="get">
+            <label>DPI o código de cliente
+                <input type="text" name="criterio" th:value="${criterio}" maxlength="20" placeholder="2508890128356 o CLI-000001" required autofocus>
+            </label>
+            <button type="submit" class="boton">Buscar</button>
+        </form>
+    </section>
+
+    <p class="nota" th:if="${usuarioActual.tienePermiso('REGISTRAR_CLIENTE')}">
+        ¿Es un cliente nuevo? <a th:href="@{/empleado/clientes/nuevo}">Regístrelo aquí</a>.
+    </p>
+</main>
+</body>
+</html>

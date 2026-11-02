@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Inicio', ~{::main})}">
+<body>
+<main class="contenido">
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+
+    <header class="encabezado">
+        <p class="encabezado-etiqueta" th:text="${usuarioActual.esCliente()} ? 'Banca virtual' : ${puesto}">Área</p>
+        <h1 th:text="|Bienvenido, ${usuarioActual.nombre}|">Bienvenido</h1>
+        <p class="nota" th:if="${sucursal}" th:text="${sucursal}">Sucursal</p>
+    </header>
+
+    <section class="panel ultimo-acceso">
+        <h2>Su último acceso</h2>
+        <p th:if="${ultimoAcceso}">
+            <strong th:text="${@fechas.fechaHora(ultimoAcceso.fechaInicio)}">fecha</strong>
+            <span th:text="|desde ${ultimoAcceso.nombreEquipo ?: 'equipo desconocido'} (IP ${ultimoAcceso.direccionIp ?: '-'})|"></span>
+        </p>
+        <p th:unless="${ultimoAcceso}">Este es su primer acceso.</p>
+        <p class="nota">Si no reconoce este acceso, cambie su contraseña y avise al banco.</p>
+    </section>
+
+    <section>
+        <h2>¿Qué desea hacer?</h2>
+        <div class="tarjetas">
+            <a class="tarjeta-opcion" th:each="opcion : ${accesos}" th:href="@{${opcion.ruta}}">
+                <span class="tarjeta-titulo" th:text="${opcion.etiqueta}">Opción</span>
+                <span class="tarjeta-texto" th:text="${opcion.descripcion}">Descripción</span>
+                <span class="pronto" th:unless="${opcion.disponible}">Próximamente</span>
+            </a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

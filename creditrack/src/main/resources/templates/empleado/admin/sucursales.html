@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Sucursales', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Administración</p>
+        <h1>Sucursales</h1>
+    </header>
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <section class="panel" th:each="s : ${sucursales}">
+        <div class="panel-encabezado">
+            <h2 th:text="|${s.codigo} · ${s.nombre}|">Sucursal</h2>
+            <span class="insignia" th:classappend="${s.estado == 'ACTIVA'} ? 'ok' : 'apagada'" th:text="${s.estado}"></span>
+        </div>
+        <dl class="datos">
+            <dt>Dirección</dt>
+            <dd th:text="|${s.direccion}, ${s.municipio}|"></dd>
+            <dt>Teléfono</dt>
+            <dd th:text="${s.telefono ?: '-'}"></dd>
+            <dt>Apertura</dt>
+            <dd th:text="${@fechas.fecha(s.fechaApertura)}"></dd>
+            <dt>Empleados activos</dt>
+            <dd th:text="${s.empleados}"></dd>
+            <dt>Responsable</dt>
+            <dd th:text="${s.responsable ?: 'Sin asignar'}"></dd>
+        </dl>
+        <div class="acciones">
+            <form th:if="${s.estado == 'ACTIVA' and s.empleados > 0}" th:action="@{/empleado/admin/sucursales/{id}/responsable(id=${s.id})}" method="post" class="fila-formulario">
+                <select name="idEmpleado" required>
+                    <option th:each="e : ${servicio.empleadosActivos(s.id)}" th:value="${e.idEmpleado}" th:text="|${e.codigoEmpleado} · ${e.puesto}|"
+                            th:selected="${e.idEmpleado == s.idResponsable}"></option>
+                </select>
+                <button type="submit" class="boton boton-chico">Asignar responsable</button>
+            </form>
+            <form th:action="@{/empleado/admin/sucursales/{id}/estado(id=${s.id})}" method="post">
+                <button type="submit" class="boton boton-chico secundario" th:text="${s.estado == 'ACTIVA'} ? 'Desactivar' : 'Activar'">Estado</button>
+            </form>
+        </div>
+    </section>
+    <section class="panel formulario">
+        <h2>Nueva sucursal</h2>
+        <form th:action="@{/empleado/admin/sucursales}" method="post">
+            <label>Código
+                <input type="text" name="codigo" maxlength="6" placeholder="AG-002" required>
+            </label>
+            <label>Nombre
+                <input type="text" name="nombre" maxlength="80" required>
+            </label>
+            <label>Municipio
+                <select name="idMunicipio" required>
+                    <optgroup th:each="grupo : ${municipios}" th:label="${grupo.departamento}">
+                        <option th:each="m : ${grupo.municipios}" th:value="${m.idMunicipio}" th:text="${m.nombre}"></option>
+                    </optgroup>
+                </select>
+            </label>
+            <label>Dirección
+                <input type="text" name="direccion" maxlength="200" required>
+            </label>
+            <label><span>Teléfono <span class="opcional">(opcional)</span></span>
+                <input type="tel" name="telefono" maxlength="9" placeholder="7951-0002">
+            </label>
+            <label>Fecha de apertura
+                <input type="date" name="fechaApertura">
+            </label>
+            <button type="submit" class="boton">Registrar sucursal</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

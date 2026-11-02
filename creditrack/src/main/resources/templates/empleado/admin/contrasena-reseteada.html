@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Contraseña reseteada', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Administración</p>
+        <h1>Contraseña reseteada</h1>
+    </header>
+    <section class="panel credenciales">
+        <dl class="datos">
+            <dt>Usuario</dt>
+            <dd th:text="${username}"></dd>
+            <dt>Contraseña temporal</dt>
+            <dd class="contrasena-temporal" th:text="${temporal}"></dd>
+        </dl>
+        <p class="nota">Entregue la contraseña temporal al titular. No se vuelve a mostrar y deberá cambiarla en su próximo ingreso.</p>
+    </section>
+    <div class="acciones">
+        <a class="boton" th:href="@{/empleado/admin/usuarios}">Volver a usuarios</a>
+    </div>
+</main>
+</body>
+</html>

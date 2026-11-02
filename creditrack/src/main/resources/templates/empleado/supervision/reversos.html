@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Reversos', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Supervisión</p>
+        <h1>Reversos</h1>
+        <p class="nota">Un reverso devuelve el dinero de una transferencia aplicada con una transacción nueva; la original queda como REVERSADA.</p>
+    </header>
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <form class="panel filtros" th:action="@{/empleado/supervision/reversos}" method="get">
+        <label>Número de transacción
+            <input type="text" name="numero" th:value="${numero}" maxlength="20" placeholder="TRX-0000000003">
+        </label>
+        <button type="submit" class="boton">Buscar</button>
+    </form>
+    <section class="panel">
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(transferencias)}">
+            <table class="tabla">
+                <thead><tr><th>Transacción</th><th>Origen → destino</th><th class="numero">Monto</th><th>Reversar</th></tr></thead>
+                <tbody>
+                <tr th:each="t : ${transferencias}">
+                    <td>
+                        <a th:href="@{/empleado/consultas/comprobantes/{n}(n=${t.numero})}" th:text="${t.numero}"></a>
+                        <small class="nota" th:text="|${@fechas.fechaHora(t.fechaHora)} · ${t.canal} · ${t.realizadoPor}|"></small>
+                    </td>
+                    <td>
+                        <span th:text="|${t.origen} → ${t.destino}|"></span>
+                        <small class="nota" th:text="${t.concepto}"></small>
+                    </td>
+                    <td class="numero" th:text="${@formato.moneda(t.monto)}"></td>
+                    <td>
+                        <form th:action="@{/empleado/supervision/reversos/{n}(n=${t.numero})}" method="post" class="fila-formulario">
+                            <input type="text" name="motivo" maxlength="150" placeholder="Motivo" required>
+                            <button type="submit" class="boton boton-chico">Reversar</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(transferencias)}">No hay transferencias que se puedan reversar.</p>
+    </section>
+</main>
+</body>
+</html>

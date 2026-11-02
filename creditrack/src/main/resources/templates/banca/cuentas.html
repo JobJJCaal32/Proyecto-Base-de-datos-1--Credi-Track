@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Mis cuentas', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Banca virtual</p>
+        <h1>Mis cuentas</h1>
+        <p class="nota" th:text="|Saldo disponible total: ${@formato.moneda(total)}|">Total</p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="cuentas">
+        <article class="panel cuenta-tarjeta" th:each="c : ${cuentas}">
+            <div class="cuenta-cabecera">
+                <div>
+                    <p class="cuenta-nombre" th:text="${c.alias ?: 'Cuenta ' + #strings.toLowerCase(c.tipoCuenta)}">Alias</p>
+                    <p class="nota" th:text="${c.alias != null} ? |${c.tipoCuenta} · ${c.numeroCuenta}| : ${c.numeroCuenta}">Número</p>
+                </div>
+                <span class="insignia" th:classappend="${c.permiteOperar} ? 'ok' : 'apagada'" th:text="${c.estadoCuenta}"></span>
+            </div>
+            <p class="saldo" th:text="${@formato.moneda(c.saldoDisponible)}">Q 0.00</p>
+            <p class="nota">Saldo disponible
+                <span th:if="${c.saldoRetenido.signum() > 0}" th:text="|· retenido ${@formato.moneda(c.saldoRetenido)}|"></span>
+            </p>
+            <div class="acciones">
+                <a class="boton boton-chico" th:if="${c.permiteOperar and usuarioActual.tienePermiso('TRANSFERIR')}"
+                   th:href="@{/banca/transferir(origen=${c.idCuenta})}">Transferir</a>
+                <a class="boton boton-chico secundario" th:href="@{/banca/movimientos(cuenta=${c.idCuenta})}">Movimientos</a>
+            </div>
+            <details class="alias" th:if="${usuarioActual.tienePermiso('GESTIONAR_ALIAS')}">
+                <summary>Cambiar alias</summary>
+                <form th:action="@{/banca/cuentas/{n}/alias(n=${c.numeroCuenta})}" method="post">
+                    <label>Alias
+                        <input type="text" name="alias" th:value="${c.alias}" maxlength="50" placeholder="Por ejemplo: Ahorro para estudios">
+                    </label>
+                    <button type="submit" class="boton boton-chico">Guardar alias</button>
+                </form>
+            </details>
+        </article>
+    </div>
+    <p th:if="${#lists.isEmpty(cuentas)}">No tiene cuentas registradas.</p>
+</main>
+</body>
+</html>

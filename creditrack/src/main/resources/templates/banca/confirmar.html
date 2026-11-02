@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Confirmar transferencia', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Banca virtual</p>
+        <h1>Confirme la transferencia</h1>
+        <p class="nota">Revise los datos antes de enviar. Una transferencia aplicada no se puede deshacer desde la banca virtual.</p>
+    </header>
+
+    <section class="panel formulario">
+        <dl class="datos">
+            <dt>Desde</dt>
+            <dd th:text="|${vista.origen.alias ?: vista.origen.numeroCuenta} (${vista.origen.numeroCuenta})|"></dd>
+            <dt>Hacia</dt>
+            <dd th:text="|${vista.destino.numeroCuenta} · ${vista.titularDestino}|"></dd>
+            <dt>Monto</dt>
+            <dd class="saldo-chico" th:text="${@formato.moneda(vista.monto)}"></dd>
+            <dt>Concepto</dt>
+            <dd th:text="${vista.concepto ?: 'Transferencia'}"></dd>
+        </dl>
+        <form th:action="@{/banca/transferir}" method="post" autocomplete="off">
+            <input type="hidden" name="origen" th:value="${vista.origen.idCuenta}">
+            <input type="hidden" name="destino" th:value="${vista.destino.numeroCuenta}">
+            <input type="hidden" name="monto" th:value="${vista.monto}">
+            <input type="hidden" name="concepto" th:value="${vista.concepto}">
+            <input type="hidden" name="referencia" th:value="${vista.referencia}">
+            <label th:if="${vista.requiereClave}">Clave de operación
+                <input type="password" name="claveOperacion" inputmode="numeric" maxlength="6" required autofocus>
+            </label>
+            <div class="acciones">
+                <button type="submit" class="boton">Transferir ahora</button>
+                <a class="boton secundario" th:href="@{/banca/transferir}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

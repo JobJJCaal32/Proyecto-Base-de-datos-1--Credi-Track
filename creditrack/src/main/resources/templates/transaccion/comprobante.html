@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Comprobante', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Comprobante</p>
+        <h1 th:text="${principal.numeroTransaccion}">TRX</h1>
+        <p class="nota" th:text="|${principal.tipoOperacion} · ${@fechas.fechaHora(principal.fechaHora)}|"></p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${nueva}">La transferencia se realizó correctamente.</div>
+
+    <section class="panel">
+        <p class="saldo" th:text="${@formato.moneda(principal.monto)}">Q 0.00</p>
+        <dl class="datos">
+            <dt>Estado</dt>
+            <dd><span class="insignia" th:classappend="${principal.estadoTransaccion == 'APLICADA'} ? 'ok' : 'alerta'" th:text="${principal.estadoTransaccion}"></span></dd>
+            <dt>Concepto</dt>
+            <dd th:text="${principal.concepto ?: '-'}"></dd>
+            <dt>Canal</dt>
+            <dd th:text="${principal.canal}"></dd>
+            <dt>Referencia</dt>
+            <dd th:text="${principal.referencia}"></dd>
+            <dt>Realizada por</dt>
+            <dd th:text="${principal.realizadoPor}"></dd>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2>Cuentas afectadas</h2>
+        <div class="tabla-contenedor">
+            <table class="tabla">
+                <thead>
+                <tr>
+                    <th>Movimiento</th>
+                    <th>Cuenta</th>
+                    <th>Titular</th>
+                    <th class="numero">Monto</th>
+                    <th class="numero">Saldo después</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${filas}" th:with="propia=${usuarioActual.esEmpleado() or f.idCliente == usuarioActual.idCliente}">
+                    <td th:text="${f.esCargo()} ? 'Débito' : 'Crédito'"></td>
+                    <td th:text="${f.numeroCuenta}"></td>
+                    <td th:text="${propia} ? ${f.titular} : ${f.titular.split(' ')[0] + ' ' + f.titular.split(' ')[1].charAt(0) + '.'}"></td>
+                    <td class="numero" th:classappend="${f.esCargo()} ? 'monto-cargo' : 'monto-abono'"
+                        th:text="${(f.esCargo() ? '- ' : '+ ') + @formato.moneda(f.monto)}"></td>
+                    <td class="numero" th:text="${propia} ? ${@formato.moneda(f.saldoPosterior)} : '—'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="acciones no-imprimir">
+        <button type="button" class="boton secundario" onclick="window.print()">Imprimir comprobante</button>
+        <a class="boton" th:href="@{${volver}}">Volver</a>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Cajas con diferencias', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Auditoría</p>
+        <h1>Cajas con diferencias</h1>
+        <p class="nota">Cierres de caja con faltante o sobrante: lo contado por el cajero contra el efectivo esperado.</p>
+    </header>
+
+    <form class="panel filtros" th:action="@{/empleado/auditoria/cajas}" method="get">
+        <label>Sucursal
+            <select name="sucursal">
+                <option value="">Todas</option>
+                <option th:each="s : ${sucursales}" th:value="${s.id}" th:text="${s.nombre}" th:selected="${s.id == sucursal}"></option>
+            </select>
+        </label>
+        <label>Cajero
+            <input type="text" name="cajero" th:value="${cajero}" maxlength="30" placeholder="EMP-0004 o usuario">
+        </label>
+        <label>Resultado
+            <select name="resultado">
+                <option value="">Todas las cerradas</option>
+                <option value="DIFERENCIA" th:selected="${resultado == 'DIFERENCIA'}">Con diferencia</option>
+                <option value="FALTANTE" th:selected="${resultado == 'FALTANTE'}">Con faltante</option>
+                <option value="SOBRANTE" th:selected="${resultado == 'SOBRANTE'}">Con sobrante</option>
+                <option value="CUADRADA" th:selected="${resultado == 'CUADRADA'}">Cuadradas</option>
+            </select>
+        </label>
+        <label>Cerradas desde
+            <input type="date" name="desde" th:value="${desde}">
+        </label>
+        <label>Hasta
+            <input type="date" name="hasta" th:value="${hasta}">
+        </label>
+        <button type="submit" class="boton">Filtrar</button>
+    </form>
+
+    <div class="cifras">
+        <section class="panel cuenta-tarjeta">
+            <span class="nota">Cajas cerradas</span>
+            <p class="saldo-chico" th:text="${totales.cerradas}"></p>
+            <span class="nota" th:text="|${totales.cuadradas} cuadraron exacto|"></span>
+        </section>
+        <section class="panel cuenta-tarjeta">
+            <span class="nota">Faltantes</span>
+            <p class="saldo-chico monto-cargo" th:text="${@formato.moneda(totales.faltante)}"></p>
+            <span class="nota" th:text="|en ${totales.conFaltante} caja(s)|"></span>
+        </section>
+        <section class="panel cuenta-tarjeta">
+            <span class="nota">Sobrantes</span>
+            <p class="saldo-chico monto-abono" th:text="${@formato.moneda(totales.sobrante)}"></p>
+            <span class="nota" th:text="|en ${totales.conSobrante} caja(s)|"></span>
+        </section>
+        <section class="panel cuenta-tarjeta">
+            <span class="nota">Resultado neto</span>
+            <p class="saldo-chico" th:classappend="${totales.neto().signum() < 0} ? 'monto-cargo' : (${totales.neto().signum() > 0} ? 'monto-abono' : '')"
+               th:text="${@formato.moneda(totales.neto())}"></p>
+            <span class="nota">Sobrantes menos faltantes</span>
+        </section>
+    </div>
+
+    <section class="panel">
+        <h2>Detalle</h2>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(pagina.filas)}">
+            <table class="tabla">
+                <thead><tr><th>Caja</th><th>Turno</th><th class="numero">Esperado</th><th class="numero">Contado</th><th class="numero">Diferencia</th><th>Arqueo</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${pagina.filas}">
+                    <td>
+                        <strong th:text="${c.cajero}"></strong>
+                        <small class="nota" th:text="|${c.codigoEmpleado} · ${c.username ?: ''}|"></small>
+                        <small class="nota" th:text="|Caja ${c.id} · ${c.sucursal}|"></small>
+                    </td>
+                    <td>
+                        <span th:text="${@fechas.fechaHora(c.apertura)}"></span>
+                        <small class="nota" th:text="|a ${@fechas.fechaHora(c.cierre)}|"></small>
+                    </td>
+                    <td class="numero" th:text="${@formato.moneda(c.calculado)}"></td>
+                    <td class="numero" th:text="${@formato.moneda(c.declarado)}"></td>
+                    <td class="numero" th:classappend="${c.diferencia.signum() < 0} ? 'monto-cargo' : (${c.diferencia.signum() > 0} ? 'monto-abono' : '')">
+                        <span th:text="${c.diferencia.signum() == 0} ? 'Cuadra' : ${@formato.moneda(c.diferencia)}"></span>
+                        <small class="nota" th:if="${c.diferencia.signum() != 0}" th:text="${c.diferencia.signum() < 0} ? 'Faltante' : 'Sobrante'"></small>
+                    </td>
+                    <td>
+                        <span class="insignia" th:classappend="${c.estado == 'ARQUEADA'} ? 'ok' : 'alerta'"
+                              th:text="${c.estado == 'ARQUEADA'} ? 'ARQUEADA' : 'SIN ARQUEO'"></span>
+                        <small class="nota" th:if="${c.supervisor}" th:text="${c.supervisor}"></small>
+                        <small class="nota" th:if="${c.observaciones}" th:text="${c.observaciones}"></small>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(pagina.filas)}">No hay cajas cerradas con esos filtros.</p>
+        <div class="paginacion">
+            <a class="boton boton-chico secundario" th:if="${pagina.numero > 1}"
+               th:href="@{/empleado/auditoria/cajas(sucursal=${sucursal},cajero=${cajero},resultado=${resultado},desde=${desde},hasta=${hasta},pagina=${pagina.numero - 1})}">Anterior</a>
+            <span class="nota" th:text="|Página ${pagina.numero}|"></span>
+            <a class="boton boton-chico secundario" th:if="${pagina.haySiguiente}"
+               th:href="@{/empleado/auditoria/cajas(sucursal=${sucursal},cajero=${cajero},resultado=${resultado},desde=${desde},hasta=${hasta},pagina=${pagina.numero + 1})}">Siguiente</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

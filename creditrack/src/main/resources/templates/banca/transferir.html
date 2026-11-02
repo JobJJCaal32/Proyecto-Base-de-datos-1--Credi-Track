@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Transferir', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Banca virtual</p>
+        <h1>Transferir</h1>
+        <p class="nota">Envíe dinero a otra cuenta de CrediTrack, propia o de otra persona.</p>
+    </header>
+
+    <section class="panel formulario">
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <div th:if="${#lists.isEmpty(cuentasOrigen)}">
+            <p>No tiene cuentas activas desde las cuales transferir.</p>
+        </div>
+        <form th:unless="${#lists.isEmpty(cuentasOrigen)}" th:action="@{/banca/transferir/confirmar}" method="post" novalidate>
+            <label>Cuenta origen
+                <select name="origen" required>
+                    <option th:each="c : ${cuentasOrigen}" th:value="${c.idCuenta}" th:selected="${c.idCuenta == origen}"
+                            th:text="|${c.alias ?: c.numeroCuenta} · disponible ${@formato.moneda(c.saldoActual.subtract(c.saldoRetenido))}|"></option>
+                </select>
+            </label>
+            <label>Cuenta destino
+                <input type="text" name="destino" th:value="${destino}" inputmode="numeric" maxlength="20" placeholder="Número de 10 dígitos" required>
+            </label>
+            <label>Monto (Q)
+                <input type="number" name="monto" th:value="${monto}" min="0.01" step="0.01" required>
+            </label>
+            <label><span>Concepto <span class="opcional">(opcional)</span></span>
+                <input type="text" name="concepto" th:value="${concepto}" maxlength="200" placeholder="Por ejemplo: Pago de renta">
+            </label>
+            <p class="nota" th:if="${requiereClave}">En el siguiente paso se le pedirá su clave de operación.</p>
+            <button type="submit" class="boton">Continuar</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

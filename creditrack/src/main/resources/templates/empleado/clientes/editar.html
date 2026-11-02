@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Actualizar cliente', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta" th:text="|Cliente ${codigo}|">Cliente</p>
+        <h1>Actualizar datos de contacto</h1>
+        <p class="nota">Los nombres, el DPI y la fecha de nacimiento no se cambian desde aquí.</p>
+    </header>
+    <section class="panel formulario">
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <form th:action="@{/empleado/clientes/{c}/editar(c=${codigo})}" method="post">
+            <label><span>NIT <span class="opcional">(opcional)</span></span>
+                <input type="text" name="nit" th:value="${datos.nit}" maxlength="20" placeholder="1234567-8 o CF">
+            </label>
+            <label><span>Teléfono <span class="opcional">(opcional)</span></span>
+                <input type="tel" name="telefono" th:value="${datos.telefono}" maxlength="9" placeholder="5512-3408">
+            </label>
+            <label>Correo electrónico
+                <input type="email" name="correo" th:value="${datos.correo}" maxlength="100">
+            </label>
+            <label>Municipio
+                <select name="idMunicipio" required>
+                    <optgroup th:each="grupo : ${municipios}" th:label="${grupo.departamento}">
+                        <option th:each="m : ${grupo.municipios}" th:value="${m.idMunicipio}" th:text="${m.nombre}"
+                                th:selected="${m.idMunicipio == datos.idMunicipio}"></option>
+                    </optgroup>
+                </select>
+            </label>
+            <label>Dirección
+                <input type="text" name="direccion" th:value="${datos.direccion}" maxlength="255" required>
+            </label>
+            <div class="acciones">
+                <button type="submit" class="boton">Guardar cambios</button>
+                <a class="boton secundario" th:href="@{/empleado/clientes/{c}(c=${codigo})}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

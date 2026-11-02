@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Verificación de consistencia', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Auditoría</p>
+        <h1>Verificación de consistencia</h1>
+        <p class="nota" th:text="|Revisión hecha el ${@fechas.fechaHora(resultado.fechaHora)} sobre toda la base de datos.|"></p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${resultado.todoCuadra()}">Todo cuadra: ninguna comprobación encontró diferencias.</div>
+    <div class="mensaje error" th:unless="${resultado.todoCuadra()}"
+         th:text="|${resultado.conFallas()} de ${#lists.size(resultado.comprobaciones)} comprobaciones encontraron diferencias. Revise el detalle abajo.|"></div>
+
+    <section class="panel">
+        <div class="tabla-contenedor">
+            <table class="tabla">
+                <thead><tr><th>Comprobación</th><th class="numero">Revisados</th><th class="numero">Diferencias</th><th>Resultado</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${resultado.comprobaciones}">
+                    <td>
+                        <strong th:text="${c.titulo}"></strong>
+                        <small class="nota" th:text="${c.descripcion}"></small>
+                    </td>
+                    <td class="numero">
+                        <span th:text="${c.revisados}"></span>
+                        <small class="nota" th:text="${c.unidad}"></small>
+                    </td>
+                    <td class="numero" th:classappend="${c.cuadra()} ? '' : 'monto-cargo'" th:text="${c.fallas}"></td>
+                    <td><span class="insignia" th:classappend="${c.cuadra()} ? 'ok' : 'alerta'" th:text="${c.cuadra()} ? 'CUADRA' : 'REVISAR'"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel" th:each="c : ${resultado.comprobaciones}" th:unless="${c.cuadra()}">
+        <h2 th:text="${c.titulo}"></h2>
+        <ul class="lista-casos">
+            <li th:each="caso : ${c.casos}" th:text="${caso}"></li>
+        </ul>
+        <p class="nota" th:if="${c.fallas > #lists.size(c.casos)}"
+           th:text="|Se muestran ${#lists.size(c.casos)} de ${c.fallas} casos.|"></p>
+    </section>
+
+    <div class="acciones no-imprimir">
+        <a class="boton" th:href="@{/empleado/auditoria/consistencia}">Volver a verificar</a>
+        <button type="button" class="boton secundario" onclick="window.print()">Imprimir</button>
+    </div>
+</main>
+</body>
+</html>

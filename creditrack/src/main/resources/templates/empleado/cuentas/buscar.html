@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Cuentas de clientes', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Clientes</p>
+        <h1>Cuentas de clientes</h1>
+        <p class="nota">Escriba un número de cuenta para abrir la ficha de su titular.</p>
+    </header>
+    <section class="panel formulario">
+        <div class="mensaje info" th:if="${aviso}" th:text="${aviso}"></div>
+        <form th:action="@{/empleado/cuentas}" method="get">
+            <label>Número de cuenta
+                <input type="text" name="numero" th:value="${numero}" inputmode="numeric" maxlength="20" placeholder="1000000001" required autofocus>
+            </label>
+            <button type="submit" class="boton">Buscar</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

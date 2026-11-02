@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Abrir cuenta', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Clientes</p>
+        <h1>Abrir cuenta</h1>
+        <p class="nota">Cuenta nueva para un cliente que ya está registrado, con su depósito de apertura.</p>
+    </header>
+
+    <section class="panel formulario">
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <form th:action="@{/empleado/cuentas/nueva}" th:object="${apertura}" method="post" novalidate>
+            <label>Código de cliente
+                <input type="text" th:field="*{codigoCliente}" maxlength="10" placeholder="CLI-000001" required th:classappend="${#fields.hasErrors('codigoCliente')} ? 'invalido'">
+                <small class="campo-error" th:if="${#fields.hasErrors('codigoCliente')}" th:errors="*{codigoCliente}"></small>
+            </label>
+            <label>Tipo de cuenta
+                <select th:field="*{idTipoCuenta}" required th:classappend="${#fields.hasErrors('idTipoCuenta')} ? 'invalido'">
+                    <option value="">Seleccione</option>
+                    <option th:each="t : ${tiposCuenta}" th:value="${t.idTipoCuenta}"
+                            th:text="|${t.descripcion} (mínimo ${@formato.moneda(t.montoAperturaMinimo)})|"></option>
+                </select>
+                <small class="campo-error" th:if="${#fields.hasErrors('idTipoCuenta')}" th:errors="*{idTipoCuenta}"></small>
+            </label>
+            <label>Depósito de apertura (Q)
+                <input type="number" th:field="*{montoApertura}" min="0.01" step="0.01" required th:classappend="${#fields.hasErrors('montoApertura')} ? 'invalido'">
+                <small class="campo-error" th:if="${#fields.hasErrors('montoApertura')}" th:errors="*{montoApertura}"></small>
+            </label>
+            <div class="acciones">
+                <button type="submit" class="boton">Abrir cuenta</button>
+                <a class="boton secundario" th:href="@{/empleado}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

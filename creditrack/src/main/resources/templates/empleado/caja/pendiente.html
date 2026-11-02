@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Operación pendiente', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta" th:text="${operacion}">Operación</p>
+        <h1 th:text="${transaccion.numeroTransaccion}">TRX</h1>
+        <p class="nota" th:text="${@fechas.fechaHora(transaccion.fechaHora)}"></p>
+    </header>
+    <section class="panel">
+        <p class="saldo" th:text="${@formato.moneda(transaccion.monto)}"></p>
+        <p><span class="insignia" th:classappend="${estado == 'RECHAZADA'} ? 'alerta' : 'apagada'" th:text="${estado}"></span></p>
+        <p th:if="${estado == 'PENDIENTE'}">La operación supera el límite y espera la autorización del supervisor. No entregue el efectivo todavía.</p>
+        <p th:if="${estado == 'RECHAZADA'}">El supervisor rechazó la operación. No se movió dinero.</p>
+    </section>
+    <div class="acciones">
+        <a class="boton" th:href="@{/empleado/caja}">Volver a mi caja</a>
+    </div>
+</main>
+</body>
+</html>

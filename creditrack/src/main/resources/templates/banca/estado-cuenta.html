@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Estado de cuenta', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Banca virtual</p>
+        <h1>Estado de cuenta</h1>
+    </header>
+
+    <form class="panel filtros no-imprimir" th:action="@{/banca/estado-cuenta}" method="get">
+        <label>Cuenta
+            <select name="cuenta" required>
+                <option th:each="c : ${cuentas}" th:value="${c.idCuenta}" th:selected="${c.idCuenta == cuenta}"
+                        th:text="${c.alias != null ? c.alias + ' · ' + c.numeroCuenta : c.numeroCuenta}"></option>
+            </select>
+        </label>
+        <label>Mes
+            <select name="mes" required>
+                <option th:each="m : ${meses}" th:value="${m.valor}" th:selected="${m.valor == mes}" th:text="${m.etiqueta}"></option>
+            </select>
+        </label>
+        <button type="submit" class="boton">Generar</button>
+    </form>
+
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <th:block th:if="${estado}">
+        <section class="panel">
+            <div class="panel-encabezado">
+                <h2 th:text="|Cuenta ${estado.cuenta.numeroCuenta} · ${estado.periodo}|">Cuenta</h2>
+                <span class="nota" th:text="${estado.tipoCuenta}"></span>
+            </div>
+            <p class="nota" th:text="${estado.titular}"></p>
+            <dl class="datos">
+                <dt>Saldo inicial</dt>
+                <dd th:text="${@formato.moneda(estado.registro.saldoInicial)}"></dd>
+                <dt>Abonos</dt>
+                <dd class="monto-abono" th:text="|+ ${@formato.moneda(estado.registro.totalAbonos)}|"></dd>
+                <dt>Cargos</dt>
+                <dd class="monto-cargo" th:text="|- ${@formato.moneda(estado.registro.totalCargos)}|"></dd>
+                <dt>Saldo final</dt>
+                <dd class="saldo-chico" th:text="${@formato.moneda(estado.registro.saldoFinal)}"></dd>
+                <dt>Movimientos</dt>
+                <dd th:text="${estado.registro.cantidadMovimientos}"></dd>
+            </dl>
+        </section>
+        <section class="panel" th:unless="${#lists.isEmpty(estado.movimientos)}">
+            <div class="tabla-contenedor">
+                <table class="tabla">
+                    <thead><tr><th>Fecha</th><th>Detalle</th><th class="numero">Monto</th><th class="numero">Saldo</th></tr></thead>
+                    <tbody>
+                    <tr th:each="m : ${estado.movimientos}">
+                        <td th:text="${@fechas.fechaHora(m.fechaHora)}"></td>
+                        <td>
+                            <span th:text="${m.concepto ?: m.tipoOperacion}"></span>
+                            <small class="nota" th:text="|${m.numeroTransaccion} · ${m.tipoOperacion}|"></small>
+                        </td>
+                        <td class="numero" th:classappend="${m.esCargo()} ? 'monto-cargo' : 'monto-abono'"
+                            th:text="${(m.esCargo() ? '- ' : '+ ') + @formato.moneda(m.monto)}"></td>
+                        <td class="numero" th:text="${@formato.moneda(m.saldoPosterior)}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <div class="acciones no-imprimir">
+            <button type="button" class="boton secundario" onclick="window.print()">Imprimir estado de cuenta</button>
+        </div>
+    </th:block>
+</main>
+</body>
+</html>

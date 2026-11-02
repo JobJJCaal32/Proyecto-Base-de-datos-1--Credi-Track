@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Mis accesos', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Seguridad</p>
+        <h1>Mis accesos</h1>
+        <p class="nota">Si ve un acceso que no reconoce, cambie su contraseña y avise al banco.</p>
+    </header>
+
+    <section class="panel">
+        <h2>Últimas sesiones</h2>
+        <div class="tabla-contenedor">
+            <table class="tabla">
+                <thead><tr><th>Inicio</th><th>Equipo</th><th>IP</th><th>Cierre</th></tr></thead>
+                <tbody>
+                <tr th:each="s : ${sesiones}">
+                    <td th:text="${@fechas.fechaHora(s.fechaInicio)}"></td>
+                    <td th:text="${s.nombreEquipo ?: '-'}"></td>
+                    <td th:text="${s.direccionIp ?: '-'}"></td>
+                    <td>
+                        <span th:if="${s.fechaFin == null}" class="insignia ok">ABIERTA</span>
+                        <span th:unless="${s.fechaFin == null}" th:text="|${@fechas.fechaHora(s.fechaFin)} · ${s.motivoCierre}|"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Intentos de ingreso recientes</h2>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(intentos)}">
+            <table class="tabla">
+                <thead><tr><th>Fecha</th><th>Resultado</th><th>IP</th></tr></thead>
+                <tbody>
+                <tr th:each="i : ${intentos}">
+                    <td th:text="${@fechas.fechaHora(i.fechaHora)}"></td>
+                    <td>
+                        <span class="insignia" th:classappend="${i.exitoso} ? 'ok' : 'alerta'"
+                              th:text="${i.exitoso} ? 'CORRECTO' : ${i.motivoFallo}"></span>
+                    </td>
+                    <td th:text="${i.direccionIp ?: '-'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(intentos)}">No hay intentos registrados.</p>
+    </section>
+</main>
+</body>
+</html>

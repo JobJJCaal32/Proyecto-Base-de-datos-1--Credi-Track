@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión | CrediTrack</title>
+    <link rel="stylesheet" th:href="@{/css/creditrack.css}">
+</head>
+<body>
+<main class="centrado">
+    <section class="tarjeta">
+        <p class="marca">CrediTrack</p>
+        <p class="subtitulo">Ingrese con su usuario y contraseña.</p>
+
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+
+        <form th:action="@{/login}" method="post" autocomplete="off">
+            <label>Usuario
+                <input type="text" name="username" th:value="${username}" maxlength="30" required autofocus>
+            </label>
+            <label>Contraseña
+                <input type="password" name="contrasena" maxlength="64" required>
+            </label>
+            <button type="submit" class="boton">Ingresar</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

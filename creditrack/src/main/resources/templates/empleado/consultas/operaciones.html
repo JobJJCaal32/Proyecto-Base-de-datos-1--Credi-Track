@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Operaciones por sucursal', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Reportes</p>
+        <h1>Operaciones por sucursal</h1>
+    </header>
+
+    <form class="panel filtros" th:action="@{/empleado/consultas/operaciones}" method="get">
+        <label>Sucursal
+            <select name="sucursal">
+                <option value="">Todas</option>
+                <option th:each="s : ${sucursales}" th:value="${s}" th:text="${s}" th:selected="${s == sucursal}"></option>
+            </select>
+        </label>
+        <label>Canal
+            <select name="canal">
+                <option value="">Todos</option>
+                <option value="CAJA" th:selected="${canal == 'CAJA'}">Caja</option>
+                <option value="VIRTUAL" th:selected="${canal == 'VIRTUAL'}">Banca virtual</option>
+                <option value="APERTURA" th:selected="${canal == 'APERTURA'}">Apertura</option>
+            </select>
+        </label>
+        <label>Mes
+            <select name="mes">
+                <option th:each="m : ${meses}" th:value="${m.valor}" th:selected="${m.valor == mes}" th:text="${m.etiqueta}"></option>
+            </select>
+        </label>
+        <button type="submit" class="boton">Filtrar</button>
+    </form>
+
+    <section class="panel">
+        <h2>Resumen</h2>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(resumen)}">
+            <table class="tabla">
+                <thead><tr><th>Sucursal</th><th>Empleado</th><th>Operación</th><th class="numero">Cantidad</th><th class="numero">Total</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${resumen}">
+                    <td th:text="${r.sucursal}"></td>
+                    <td th:text="${r.empleado}"></td>
+                    <td th:text="${r.tipoOperacion}"></td>
+                    <td class="numero" th:text="${r.cantidad}"></td>
+                    <td class="numero" th:text="${@formato.moneda(r.total)}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(resumen)}">No hay operaciones con esos filtros.</p>
+    </section>
+
+    <section class="panel" th:unless="${#lists.isEmpty(operaciones)}">
+        <h2>Detalle (últimas 200)</h2>
+        <div class="tabla-contenedor">
+            <table class="tabla">
+                <thead><tr><th>Fecha</th><th>Transacción</th><th>Canal</th><th>Sucursal</th><th>Realizada por</th><th class="numero">Monto</th></tr></thead>
+                <tbody>
+                <tr th:each="o : ${operaciones}">
+                    <td th:text="${@fechas.fechaHora(o.fechaHora)}"></td>
+                    <td>
+                        <span th:text="${o.numeroTransaccion}"></span>
+                        <small class="nota" th:text="|${o.tipoOperacion} · ${o.estado}|"></small>
+                    </td>
+                    <td th:text="${o.canal}"></td>
+                    <td th:text="${o.sucursal}"></td>
+                    <td th:text="${o.empleado ?: o.realizadoPor}"></td>
+                    <td class="numero" th:text="${@formato.moneda(o.monto)}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

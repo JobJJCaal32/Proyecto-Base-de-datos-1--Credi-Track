@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Mi caja', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Caja</p>
+        <h1>Mi caja</h1>
+        <p class="nota" th:if="${resumen}" th:text="|${resumen.sucursal} · abierta desde ${@fechas.fechaHora(resumen.sesion.fechaApertura)}|"></p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="panel formulario" th:unless="${resumen}">
+        <h2>Abrir caja</h2>
+        <p>No tiene una caja abierta. Cuente el efectivo con el que empieza el turno.</p>
+        <form th:action="@{/empleado/caja/abrir}" method="post">
+            <label>Efectivo inicial (Q)
+                <input type="number" name="montoApertura" min="0" step="0.01" required autofocus>
+            </label>
+            <button type="submit" class="boton">Abrir caja</button>
+        </form>
+    </section>
+
+    <th:block th:if="${resumen}">
+        <section class="panel">
+            <p class="nota">Efectivo esperado en caja</p>
+            <p class="saldo" th:text="${@formato.moneda(resumen.efectivoEsperado)}"></p>
+            <dl class="datos">
+                <dt>Efectivo inicial</dt>
+                <dd th:text="${@formato.moneda(resumen.sesion.montoApertura)}"></dd>
+                <dt>Depósitos</dt>
+                <dd th:text="|+ ${@formato.moneda(resumen.depositos)} (${resumen.cantidadDepositos})|"></dd>
+                <dt>Retiros</dt>
+                <dd th:text="|- ${@formato.moneda(resumen.retiros)} (${resumen.cantidadRetiros})|"></dd>
+                <dt>Transferencias</dt>
+                <dd th:text="${resumen.transferencias}"></dd>
+                <dt>Pendientes</dt>
+                <dd th:text="${resumen.pendientes}"></dd>
+            </dl>
+            <div class="acciones">
+                <a class="boton" th:if="${usuarioActual.tienePermiso('REALIZAR_DEPOSITO')}" th:href="@{/empleado/caja/deposito}">Depósito</a>
+                <a class="boton" th:if="${usuarioActual.tienePermiso('REALIZAR_RETIRO')}" th:href="@{/empleado/caja/retiro}">Retiro</a>
+                <a class="boton secundario" th:if="${usuarioActual.tienePermiso('TRANSFERIR_VENTANILLA')}" th:href="@{/empleado/caja/transferencia}">Transferencia</a>
+            </div>
+            <p class="nota" th:text="|Los retiros mayores a ${@formato.moneda(limite)} necesitan autorización del supervisor.|"></p>
+        </section>
+
+        <section class="panel formulario" th:if="${usuarioActual.tienePermiso('CERRAR_CAJA')}">
+            <h2>Cerrar caja</h2>
+            <form th:action="@{/empleado/caja/cerrar}" method="post">
+                <label>Efectivo contado (Q)
+                    <input type="number" name="montoDeclarado" min="0" step="0.01" required>
+                </label>
+                <label><span>Observaciones <span class="opcional">(opcional)</span></span>
+                    <input type="text" name="observaciones" maxlength="300">
+                </label>
+                <button type="submit" class="boton secundario">Cerrar caja</button>
+            </form>
+        </section>
+    </th:block>
+</main>
+</body>
+</html>

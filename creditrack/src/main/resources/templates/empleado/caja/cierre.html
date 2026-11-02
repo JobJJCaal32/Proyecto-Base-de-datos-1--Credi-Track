@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Caja cerrada', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Caja</p>
+        <h1>Caja cerrada</h1>
+        <p class="nota" th:text="|${cierre.sucursal} · ${@fechas.fechaHora(cierre.sesion.fechaApertura)} a ${@fechas.fechaHora(cierre.sesion.fechaCierre)}|"></p>
+    </header>
+    <section class="panel">
+        <dl class="datos">
+            <dt>Efectivo inicial</dt>
+            <dd th:text="${@formato.moneda(cierre.sesion.montoApertura)}"></dd>
+            <dt>Depósitos</dt>
+            <dd th:text="|+ ${@formato.moneda(cierre.depositos)}|"></dd>
+            <dt>Retiros</dt>
+            <dd th:text="|- ${@formato.moneda(cierre.retiros)}|"></dd>
+            <dt>Esperado</dt>
+            <dd th:text="${@formato.moneda(cierre.sesion.montoCierreCalculado)}"></dd>
+            <dt>Contado</dt>
+            <dd th:text="${@formato.moneda(cierre.sesion.montoCierreDeclarado)}"></dd>
+            <dt>Diferencia</dt>
+            <dd th:classappend="${cierre.sesion.diferencia.signum() < 0} ? 'monto-cargo' : (${cierre.sesion.diferencia.signum() > 0} ? 'monto-abono' : '')"
+                th:text="${cierre.sesion.diferencia.signum() == 0} ? 'Cuadra exacto' : (${cierre.sesion.diferencia.signum() < 0} ? 'Faltante de ' + ${@formato.moneda(cierre.sesion.diferencia.abs())} : 'Sobrante de ' + ${@formato.moneda(cierre.sesion.diferencia)})"></dd>
+        </dl>
+        <p class="nota">El supervisor revisará el cierre en el arqueo de cajas.</p>
+    </section>
+    <div class="acciones no-imprimir">
+        <button type="button" class="boton secundario" onclick="window.print()">Imprimir cierre</button>
+        <a class="boton" th:href="@{/empleado}">Ir al inicio</a>
+    </div>
+</main>
+</body>
+</html>

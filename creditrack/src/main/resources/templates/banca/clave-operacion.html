@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Clave de operación', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Seguridad</p>
+        <h1>Clave de operación</h1>
+        <p class="nota">Es un código de 6 dígitos, distinto de su contraseña, que se le pide para confirmar cada transferencia.</p>
+    </header>
+
+    <section class="panel formulario">
+        <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+        <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+        <p>
+            <span class="insignia" th:classappend="${configurada} ? 'ok' : 'apagada'" th:text="${configurada} ? 'CONFIGURADA' : 'SIN CONFIGURAR'"></span>
+        </p>
+        <form th:action="@{/banca/clave-operacion}" method="post" autocomplete="off">
+            <label>Contraseña de ingreso
+                <input type="password" name="contrasena" maxlength="64" required autofocus>
+            </label>
+            <label><span th:text="${configurada} ? 'Nueva clave de operación' : 'Clave de operación'">Clave</span>
+                <input type="password" name="clave" inputmode="numeric" pattern="\d{6}" maxlength="6" required>
+            </label>
+            <label>Confirmar clave
+                <input type="password" name="confirmacion" inputmode="numeric" pattern="\d{6}" maxlength="6" required>
+            </label>
+            <p class="nota">No use dígitos repetidos (111111) ni seguidos (123456).</p>
+            <button type="submit" class="boton" th:text="${configurada} ? 'Cambiar clave' : 'Guardar clave'">Guardar</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

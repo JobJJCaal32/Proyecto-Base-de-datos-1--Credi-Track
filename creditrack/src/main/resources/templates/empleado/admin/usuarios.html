@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Usuarios', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Administración</p>
+        <h1>Usuarios</h1>
+        <p class="nota">Sin búsqueda se muestran los usuarios bloqueados. Al resetear una contraseña también se desbloquea el usuario.</p>
+    </header>
+
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="panel filtros" th:action="@{/empleado/admin/usuarios}" method="get">
+        <label>Usuario o nombre
+            <input type="text" name="texto" th:value="${texto}" maxlength="40" placeholder="marta.coc">
+        </label>
+        <button type="submit" class="boton">Buscar</button>
+    </form>
+
+    <section class="panel">
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(usuarios)}">
+            <table class="tabla">
+                <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td><strong th:text="${u.username}"></strong></td>
+                    <td th:text="${u.nombre}"></td>
+                    <td th:text="${u.rol}"></td>
+                    <td>
+                        <span class="insignia" th:classappend="${u.estado == 'ACTIVO'} ? 'ok' : 'alerta'" th:text="${u.estado}"></span>
+                        <small class="nota" th:if="${u.fechaBloqueo}" th:text="|desde ${@fechas.fechaHora(u.fechaBloqueo)}|"></small>
+                    </td>
+                    <td>
+                        <div class="acciones">
+                            <form th:if="${u.estado == 'BLOQUEADO' and usuarioActual.tienePermiso('DESBLOQUEAR_USUARIO')}"
+                                  th:action="@{/empleado/admin/usuarios/{n}/desbloquear(n=${u.username})}" method="post">
+                                <button type="submit" class="boton boton-chico">Desbloquear</button>
+                            </form>
+                            <form th:if="${usuarioActual.tienePermiso('RESETEAR_CONTRASENA')}"
+                                  th:action="@{/empleado/admin/usuarios/{n}/resetear(n=${u.username})}" method="post">
+                                <button type="submit" class="boton boton-chico secundario">Resetear contraseña</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(usuarios)}" th:text="${texto} ? 'No se encontraron usuarios.' : 'No hay usuarios bloqueados.'"></p>
+    </section>
+</main>
+</body>
+</html>

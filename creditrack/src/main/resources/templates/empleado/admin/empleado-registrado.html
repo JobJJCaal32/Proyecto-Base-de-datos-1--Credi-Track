@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Empleado registrado', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Registro completado</p>
+        <h1 th:text="${resultado.nombre}">Empleado</h1>
+        <p class="nota" th:text="|${resultado.codigo} · ${resultado.rol}|"></p>
+    </header>
+    <section class="panel credenciales">
+        <h2>Acceso al sistema</h2>
+        <dl class="datos">
+            <dt>Usuario</dt>
+            <dd th:text="${resultado.username}"></dd>
+            <dt>Contraseña temporal</dt>
+            <dd class="contrasena-temporal" th:text="${resultado.contrasenaTemporal}"></dd>
+        </dl>
+        <p class="nota">Entregue estos datos al empleado. La contraseña temporal no se vuelve a mostrar y deberá cambiarla en su primer ingreso.</p>
+    </section>
+    <div class="acciones no-imprimir">
+        <button type="button" class="boton secundario" onclick="window.print()">Imprimir</button>
+        <a class="boton" th:href="@{/empleado/admin/empleados}">Ver empleados</a>
+    </div>
+</main>
+</body>
+</html>

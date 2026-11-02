@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Arqueo de cajas', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Supervisión</p>
+        <h1>Arqueo de cajas</h1>
+        <p class="nota">Revise el cierre de cada caja y deje constancia del arqueo. No puede arquear su propia caja.</p>
+    </header>
+    <div class="mensaje error" th:if="${error}" th:text="${error}"></div>
+    <form class="panel filtros" th:action="@{/empleado/supervision/arqueos}" method="get">
+        <label>Estado
+            <select name="estado">
+                <option value="">Todas</option>
+                <option value="ABIERTA" th:selected="${estado == 'ABIERTA'}">Abiertas</option>
+                <option value="CERRADA" th:selected="${estado == 'CERRADA'}">Cerradas, por arquear</option>
+                <option value="ARQUEADA" th:selected="${estado == 'ARQUEADA'}">Arqueadas</option>
+            </select>
+        </label>
+        <button type="submit" class="boton">Filtrar</button>
+    </form>
+    <section class="panel">
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(cajas)}">
+            <table class="tabla">
+                <thead><tr><th>Caja</th><th>Turno</th><th class="numero">Esperado</th><th class="numero">Contado</th><th class="numero">Diferencia</th><th>Estado</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${cajas}">
+                    <td>
+                        <strong th:text="${c.cajero}"></strong>
+                        <small class="nota" th:text="|${c.sucursal} · ${c.transacciones} operaciones|"></small>
+                    </td>
+                    <td>
+                        <span th:text="${@fechas.fechaHora(c.apertura)}"></span>
+                        <small class="nota" th:if="${c.cierre}" th:text="|a ${@fechas.fechaHora(c.cierre)}|"></small>
+                    </td>
+                    <td class="numero" th:text="${@formato.moneda(c.calculado)}"></td>
+                    <td class="numero" th:text="${@formato.moneda(c.declarado)}"></td>
+                    <td class="numero" th:classappend="${c.diferencia != null and c.diferencia.signum() < 0} ? 'monto-cargo' : ''"
+                        th:text="${@formato.moneda(c.diferencia)}"></td>
+                    <td>
+                        <span class="insignia" th:classappend="${c.estado == 'ARQUEADA'} ? 'ok' : (${c.estado == 'CERRADA'} ? 'alerta' : '')" th:text="${c.estado}"></span>
+                        <form th:if="${c.estado == 'CERRADA'}" th:action="@{/empleado/supervision/arqueos/{id}(id=${c.id})}" method="post" class="fila-formulario">
+                            <input type="text" name="observaciones" maxlength="150" placeholder="Observaciones">
+                            <button type="submit" class="boton boton-chico">Arquear</button>
+                        </form>
+                        <small class="nota" th:if="${c.observaciones}" th:text="${c.observaciones}"></small>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${#lists.isEmpty(cajas)}">No hay cajas con ese estado.</p>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Empleados', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Administración</p>
+        <h1>Empleados</h1>
+    </header>
+    <div class="mensaje aviso" th:if="${aviso}" th:text="${aviso}"></div>
+    <section class="panel">
+        <div class="panel-encabezado">
+            <h2 th:text="|${#lists.size(empleados)} empleados|">Empleados</h2>
+            <a class="boton boton-chico" th:if="${usuarioActual.tienePermiso('REGISTRAR_EMPLEADO')}" th:href="@{/empleado/admin/empleados/nuevo}">Registrar empleado</a>
+        </div>
+        <div class="tabla-contenedor">
+            <table class="tabla">
+                <thead><tr><th>Código</th><th>Nombre</th><th>Puesto y sucursal</th><th>Rol y usuario</th><th>Estado</th></tr></thead>
+                <tbody>
+                <tr th:each="e : ${empleados}">
+                    <td><a th:href="@{/empleado/admin/empleados/{c}(c=${e.codigo})}" th:text="${e.codigo}"></a></td>
+                    <td th:text="${e.nombre}"></td>
+                    <td><span th:text="${e.puesto}"></span><small class="nota" th:text="${e.sucursal}"></small></td>
+                    <td><span th:text="${e.rol ?: '-'}"></span><small class="nota" th:text="${e.username}"></small></td>
+                    <td><span class="insignia" th:classappend="${e.estado == 'ACTIVO'} ? 'ok' : 'apagada'" th:text="${e.estado}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

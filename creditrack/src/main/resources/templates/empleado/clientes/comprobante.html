@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: pagina('Cliente registrado', ~{::main})}">
+<body>
+<main class="contenido">
+    <header class="encabezado">
+        <p class="encabezado-etiqueta">Registro completado</p>
+        <h1 th:text="${resultado.nombreCompleto}">Cliente</h1>
+        <p class="nota" th:text="|Código de cliente ${resultado.codigoCliente}|">Código</p>
+    </header>
+
+    <div class="mensaje aviso">El cliente, su cuenta y su usuario de banca virtual quedaron registrados.</div>
+
+    <section class="panel">
+        <h2>Cuenta abierta</h2>
+        <dl class="datos">
+            <dt>Número de cuenta</dt>
+            <dd th:text="${resultado.cuenta.numeroCuenta}"></dd>
+            <dt>Tipo</dt>
+            <dd th:text="${resultado.cuenta.tipoCuenta}"></dd>
+            <dt>Depósito de apertura</dt>
+            <dd th:text="${@formato.moneda(resultado.cuenta.monto)}"></dd>
+            <dt>Transacción</dt>
+            <dd th:text="${resultado.cuenta.numeroTransaccion}"></dd>
+            <dt>Fecha</dt>
+            <dd th:text="${@fechas.fechaHora(resultado.cuenta.fechaHora)}"></dd>
+        </dl>
+    </section>
+
+    <section class="panel credenciales">
+        <h2>Acceso a la banca virtual</h2>
+        <dl class="datos">
+            <dt>Usuario</dt>
+            <dd th:text="${resultado.username}"></dd>
+            <dt>Contraseña temporal</dt>
+            <dd class="contrasena-temporal" th:text="${resultado.contrasenaTemporal}"></dd>
+            <dt>Correo</dt>
+            <dd th:text="${resultado.correo}"></dd>
+        </dl>
+        <p class="nota">Entregue estos datos al cliente. La contraseña temporal no se vuelve a mostrar y el cliente deberá cambiarla en su primer ingreso.</p>
+    </section>
+
+    <div class="acciones no-imprimir">
+        <button type="button" class="boton secundario" onclick="window.print()">Imprimir comprobante</button>
+        <a class="boton secundario" th:href="@{/empleado/clientes/{c}(c=${resultado.codigoCliente})}">Ver ficha del cliente</a>
+        <a class="boton" th:href="@{/empleado/clientes/nuevo}">Registrar otro cliente</a>
+    </div>
+</main>
+</body>
+</html>
